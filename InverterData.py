@@ -1,7 +1,7 @@
 #!/usr/bin/python3
 # Script gathering solar data from Sofar Solar Inverter (K-TLX) via logger module LSW-3/LSE
 # by Michalux (based on DEYE script by jlopez77, HA initial code by pablolite).
-# Version: 1.9
+# Version: 1.9b
 #
 
 import sys
@@ -14,9 +14,8 @@ import paho.mqtt.client as paho
 import os
 import configparser
 import datetime
+from influxdb import InfluxDBClient
 from datetime import datetime
-import influxdb_client
-from influxdb_client.client.write_api import SYNCHRONOUS
 
 def twosComplement_hex(hexval, reg):
   if hexval=="" or (" " in hexval):
@@ -40,7 +39,7 @@ def PrepareInfluxData(IfData, fieldname, fieldvalue):
   return IfData
 
 def Write2InfluxDB(IfData):
-  influxdb_api.write(ifbucket, iforg, IfData)
+  ifclient.write_points(IfData);
 
 def PrepareDomoticzData(DData, idx, svalue):
   if isinstance(svalue, str):
@@ -88,10 +87,11 @@ config_logfile=configParser.get('SofarInverter', 'log_file')
 prometheus=configParser.get('Prometheus', 'prometheus')
 prometheus_file=configParser.get('Prometheus', 'prometheus_file')
 influxdb=configParser.get('InfluxDB', 'influxdb')
-ifurl=configParser.get('InfluxDB', 'influxdb_url')
-ifbucket=configParser.get('InfluxDB', 'influxdb_bucket')
-iforg=configParser.get('InfluxDB', 'influxdb_org')
-iftoken=configParser.get('InfluxDB', 'influxdb_token')
+ifhost=configParser.get('InfluxDB', 'influxdb_host')
+ifport=configParser.get('InfluxDB', 'influxdb_port')
+ifuser=configParser.get('InfluxDB', 'influxdb_user')
+ifpass=configParser.get('InfluxDB', 'influxdb_password')
+ifdb=configParser.get('InfluxDB', 'influxdb_dbname')
 DomoticzSupport=configParser.get('Domoticz', 'domoticz_support')
 domoticz_mqtt_topic=configParser.get('Domoticz', 'domoticz_mqtt_topic')
 HomeAssistantSupport=configParser.get('HomeAssistant', 'homeassistant_support')
@@ -106,8 +106,7 @@ logfile = open(config_logfile, "a")
 # Initialise InfluxDB support
 if influxdb=="1":
   WriteDebug(logfile, "Initialising InfluxDB connection")
-  ifclient = influxdb_client.InfluxDBClient(url=ifurl, token=iftoken, org=iforg)
-  influxdb_api = ifclient.write_api(write_options=SYNCHRONOUS)
+  ifclient = InfluxDBClient(ifhost,ifport,ifuser,ifpass,ifdb);
   InfluxData=[
     {
       "measurement": "InverterData",
@@ -312,7 +311,8 @@ if influxdb=="1" and invstatus==0:
 if mqtt==1:
   WriteDebug(logfile, "Writing data to MQTT")
   # Initialise MQTT connection
-  client=paho.Client("inverter")
+  client=paho.Client(paho.CallbackAPIVersion.VERSION2,"inverter")
+  client._connect_timeout = 10.0
   if mqtt_tls=="1":
     client.tls_set(mqtt_cacert,tls_version=mqtt_tls_ver)
     client.tls_insecure_set(mqtt_tls_insecure)

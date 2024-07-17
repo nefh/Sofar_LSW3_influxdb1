@@ -196,15 +196,23 @@ It helps getting more acurate data agregations (i.e. in Grafana)
 ### Fixed
 
 ## [1.9] - 2023-09-21
-Fixes, additional file and debug logging, InfluxDB v2.x support
+Fixes, additional file and debug logging, ~~InfluxDB v2.x support~~
 
 ### Added
 1. Logfile configuration in config.cfg
 2. Additional debug option in config.cfg - enables additional debug info written to a log file
 
 ### Changed
-1. InfluxDB support now requires InfluxDB v2.x (instead of 1.x). 
-2. InfluxDB config section in config.cfg to reflect InfluxDB v2.x access requirements
+1. ~~InfluxDB support now requires InfluxDB v2.x (instead of 1.x).~~
+2. ~~InfluxDB config section in config.cfg to reflect InfluxDB v2.x access requirements~~
 
 ### Fixed
 1. Endless data gathering loop when inverter's status <> 0 (ready), that flooded logger and made it hang. That fixes issue #46
+
+## [1.9b] - 2024-07-17
+Forked version with kept InfluxDB v1.x support, some minor tweaks.
+
+### Changed
+1. Retrieved InfluxDB v1.x support from release 1.84
+2. Specified callbackAPI to V2 due to breaking changes in paho-mqtt 2.0+
+3. Increased MQTT timeout to 10s to avoid rare connection breaking.

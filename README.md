@@ -1,4 +1,6 @@
 # SOFAR Inverter + LSW-3/LSE
+Forked from https://github.com/MichaluxPL/Sofar_LSW3 to keep support for InfluxDB v1.x.
+
 Small utility to read data from SOFAR K-TLX inverters through the Solarman (LSW-3/LSE) datalogger. 
 Two scripts to get inverter's statistics and hardware info.
 Tested with logger S/N 17xxxxxxx and 21xxxxxxx (protocol V5).
@@ -41,12 +43,6 @@ prometheus_file=/xx/xx/metrics/index.html  # Path to Prometheus metrics file ser
 
 [InfluxDB]
 influxdb=0                      # set to 1 to export data to InfluxDB
-influxdb_url=http://x.x.x.x:8086 #InfluxDB server access URL
-influxdb_bucket=SolarData       # InfluxDB bucket to store Inverter's data
-influxdb_org=                   # InfluxDB organization
-influxdb_token=                 # InfluxDB access token
-
-[InfluxDB]
 influxdb_host=                  # InfluxDB host (i.e. 127.0.0.1)
 influxdb_port=8086              # InfluxDB port
 influxdb_user=                  # InfluxDB user with permisions to read/write from/to dbname
@@ -237,6 +233,7 @@ Steps to run InfluxDB+Grafana support:
     2. Create database to store inverter data in InfluxDB (i.e. create database Data)
     3. Add InfluxDB datasource in Grafana (name it InfluxDB)
     4. Import grafana_iflux_en/pl.json file (Dashboards->Manage->Import).
-    Important: From version 1.9 the script requires InfluxDB v2.x
 ```
+~~Important: From version 1.9 the script requires InfluxDB v2.x~~
+
 Enjoy :)
